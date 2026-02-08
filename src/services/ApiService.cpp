@@ -31,6 +31,7 @@ std::vector<Review> ApiService::requestAiReview(AIProvider provider, std::string
 
   if (!res || res->status != 200) {
     std::cerr << "Error: " << (res ? std::to_string(res->status) : "No response") << std::endl;
+    throw new std::runtime_error("ERR_RESPONSE_FAILED");
   }
 
   nlohmann::json responseJson = nlohmann::json::parse(res->body);
