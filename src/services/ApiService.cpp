@@ -1,5 +1,6 @@
 #include "ApiService.hpp"
 #include "AIProvider.hpp"
+#include "Spinner.hpp"
 #include <httplib.h>
 #include <json.hpp>
 #include <iostream>
@@ -20,7 +21,9 @@ std::vector<Review> ApiService::requestAiReview(AIProvider provider, std::string
   body["model"] = "gpt-5-mini";
   body["input"] = prompt;
 
-  std::cout << "Connecting to OpenAI, using model " << body["model"] << "..." << std::endl;
+  std::ostringstream connectMessage; 
+  connectMessage << "Connecting to OpenAI, using model " << body["model"];
+  Spinner spinner(connectMessage.str());
 
   auto res = client.Post(
     "/v1/responses",
@@ -29,11 +32,15 @@ std::vector<Review> ApiService::requestAiReview(AIProvider provider, std::string
     "application/json"
   );
 
+  spinner.stop();
+
   if (!res || res->status != 200) {
+    std::cout << " \e[0;31m✗\e[0m" << std::endl;
     std::cerr << "Error: " << (res ? std::to_string(res->status) : "No response") << std::endl;
     throw new std::runtime_error("ERR_RESPONSE_FAILED");
   }
 
+  std::cout << " \e[0;32m✓\e[0m" << std::endl;
   nlohmann::json responseJson = nlohmann::json::parse(res->body);
 
   std::string finalizedResponseJson;

@@ -2,4 +2,4 @@
 -Isrc
 -Ideps
 -DCPPHTTPLIB_OPENSSL_SUPPORT
--I/usr/local/opt/openssl@3
+-I/usr/local/opt/openssl@3/include
