@@ -4,15 +4,11 @@
 
 It’s designed for quick iteration, solo workflows, and experimentation with AI-assisted review — without leaving your editor or shell.
 
----
-
 ## ✨ Features
 
 - **AI-powered code review** using modern LLMs (OpenAI, Gemini, Claude, etc)
 - **CLI-first workflow** — run reviews straight from the terminal
 - **Structured output** — displays code review into formatted review UI
-
----
 
 ## 📦 Requirements
 
@@ -20,8 +16,6 @@ It’s designed for quick iteration, solo workflows, and experimentation with AI
 - `make`
 - **OpenSSL** development headers
 - A **supported AI provider API key**
-
----
 
 ## 🛠️ Build
 
@@ -32,8 +26,6 @@ cp .env.example .env
 # add your AI Provider's API key to .env
 make
 ```
-
----
 
 ## Usage
 ```bash
