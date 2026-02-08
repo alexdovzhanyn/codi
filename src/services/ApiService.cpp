@@ -11,7 +11,7 @@ const std::unordered_map<AIProvider, std::string> ApiService::apiProviderToKeyMa
   { AIProvider::OPENAI, "OPENAI_API_KEY" }
 };
 
-void ApiService::requestAiReview(AIProvider provider, std::string prompt) {
+std::vector<Review> ApiService::requestAiReview(AIProvider provider, std::string prompt) {
   std::string apiToken = getApiTokenFromEnv(provider); 
 
   httplib::SSLClient client = httplib::SSLClient("api.openai.com");
@@ -29,24 +29,29 @@ void ApiService::requestAiReview(AIProvider provider, std::string prompt) {
     "application/json"
   );
 
-  if (res && res->status == 200) {
-    nlohmann::json responseJson = nlohmann::json::parse(res->body);
-
-    std::string finalizedResponseJSON;
-    for (auto &outObj : responseJson["output"]) {
-      if (!outObj.contains("content")) continue;
-
-      for (auto &contentChunk : outObj["content"]) {
-        if (!contentChunk.contains("text")) continue;
-
-        finalizedResponseJSON += contentChunk["text"];
-      }
-    }
-
-    std::cout << finalizedResponseJSON << std::endl;
-  } else {
+  if (!res || res->status != 200) {
     std::cerr << "Error: " << (res ? std::to_string(res->status) : "No response") << std::endl;
   }
+
+  nlohmann::json responseJson = nlohmann::json::parse(res->body);
+
+  std::string finalizedResponseJson;
+  for (auto &outObj : responseJson["output"]) {
+    if (!outObj.contains("content")) continue;
+
+    for (auto &contentChunk : outObj["content"]) {
+      if (!contentChunk.contains("text")) continue;
+
+      finalizedResponseJson += contentChunk["text"];
+    }
+  }
+
+  nlohmann::json aiResponseJson = nlohmann::json::parse(finalizedResponseJson);
+  
+  std::vector<Review> reviews;
+  for (auto &reviewJson : aiResponseJson["comments"]) reviews.push_back(Review::fromJSON(reviewJson));
+
+  return reviews;
 }
 
 std::string ApiService::getApiTokenFromEnv(AIProvider provider) {
